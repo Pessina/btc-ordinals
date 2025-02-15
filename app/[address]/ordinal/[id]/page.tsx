@@ -1,11 +1,14 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useOrdinalDetails } from "@/hooks/useOrdinalDetails";
 import Image from "next/image";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 export default function OrdinalPage() {
     const { id, address } = useParams();
+    const router = useRouter();
 
     const { data: ordinalDetails, isLoading, error } = useOrdinalDetails(
         address as string,
@@ -14,8 +17,16 @@ export default function OrdinalPage() {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center min-h-screen">
-                <p>Loading...</p>
+            <div className="container mx-auto p-8">
+                <div className="max-w-2xl mx-auto space-y-4">
+                    <Skeleton className="h-8 w-64" />
+                    <Skeleton className="h-96 w-full" />
+                    <div className="space-y-2">
+                        {Array.from({ length: 14 }).map((_, i) => (
+                            <Skeleton key={i} className="h-6 w-full" />
+                        ))}
+                    </div>
+                </div>
             </div>
         );
     }
@@ -79,8 +90,17 @@ export default function OrdinalPage() {
 
     return (
         <div className="container mx-auto p-8">
-            <div className="max-w-2xl mx-auto bg-white/5 p-6 rounded-lg space-y-4">
-                <h1 className="text-2xl font-bold">Ordinal #{ordinalDetails.number}</h1>
+            <div className="max-w-2xl mx-auto space-y-4">
+                <div className="flex items-center gap-4 mb-4">
+                    <Button
+                        onClick={() => router.back()}
+                        variant="secondary"
+                        className="bg-black/20 hover:bg-black/30"
+                    >
+                        ← Back
+                    </Button>
+                    <h1 className="text-2xl font-bold">Ordinal #{ordinalDetails.number}</h1>
+                </div>
 
                 {renderContent()}
 
