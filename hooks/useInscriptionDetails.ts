@@ -52,7 +52,10 @@ const fetchInscriptionDetails = async ({
   return data;
 };
 
-export const useOrdinalDetails = (address?: string, inscriptionId?: string) => {
+export const useInscriptionDetails = (
+  address?: string,
+  inscriptionId?: string
+) => {
   return useQuery({
     queryKey: ["ordinal-details", address, inscriptionId],
     queryFn: () =>

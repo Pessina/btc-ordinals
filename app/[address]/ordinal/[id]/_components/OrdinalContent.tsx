@@ -1,6 +1,6 @@
 import { ORDISCAN_API_URL } from "@/lib/constants";
 import Image from "next/image";
-import { InscriptionDetails } from "@/hooks/useOrdinalDetails";
+import { InscriptionDetails } from "@/hooks/useInscriptionDetails";
 
 export const OrdinalContent: React.FC<{ ordinalDetails: InscriptionDetails }> = ({ ordinalDetails }) => {
     const contentUrl = `${ORDISCAN_API_URL}/content/${ordinalDetails.id}`;

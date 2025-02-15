@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useOrdinalDetails } from "@/hooks/useOrdinalDetails";
+import { useInscriptionDetails } from "@/hooks/useInscriptionDetails";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
@@ -14,7 +14,7 @@ import { LoadingState } from "./_components/LoadingState";
 export default function OrdinalPage() {
     const { id, address } = useParams<{ id: string; address: string }>();
 
-    const { data: ordinalDetails, isLoading, error } = useOrdinalDetails(
+    const { data: ordinalDetails, isLoading, error } = useInscriptionDetails(
         address,
         id
     );
