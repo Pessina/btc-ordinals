@@ -1,3 +1,4 @@
+import { XVERSE_API_URL } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
 
 interface InscriptionDetails {
@@ -38,7 +39,7 @@ const fetchInscriptionDetails = async ({
   inscriptionId,
 }: FetchInscriptionDetailsParams): Promise<InscriptionDetails> => {
   const response = await fetch(
-    `https://api-3.xverse.app/v1/address/${address}/ordinals/inscriptions/${inscriptionId}`
+    `${XVERSE_API_URL}/address/${address}/ordinals/inscriptions/${inscriptionId}`
   );
 
   if (!response.ok) {
@@ -58,6 +59,6 @@ export const useOrdinalDetails = (address?: string, inscriptionId?: string) => {
       address && inscriptionId
         ? fetchInscriptionDetails({ address, inscriptionId })
         : Promise.reject(new Error("Address and inscription ID are required")),
-    enabled: Boolean(address) && Boolean(inscriptionId),
+    enabled: !!address && !!inscriptionId,
   });
 };

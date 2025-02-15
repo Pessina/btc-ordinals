@@ -1,3 +1,4 @@
+import { ORDISCAN_API_URL } from "@/lib/constants";
 import Image from "next/image";
 
 type OrdinalContentProps = {
@@ -9,7 +10,7 @@ type OrdinalContentProps = {
 }
 
 export const OrdinalContent: React.FC<{ ordinalDetails: OrdinalContentProps }> = ({ ordinalDetails }) => {
-    const contentUrl = `https://ordiscan.com/content/${ordinalDetails.id}`;
+    const contentUrl = `${ORDISCAN_API_URL}/content/${ordinalDetails.id}`;
 
     // Render safe image types directly.
     // SVGs may include scripts, so we handle them (and other non-standard types) in an isolated iframe.

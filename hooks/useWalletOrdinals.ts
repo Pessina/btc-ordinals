@@ -1,3 +1,4 @@
+import { XVERSE_API_URL } from "@/lib/constants";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 interface OrdinalUTXO {
@@ -32,12 +33,13 @@ interface FetchResponse {
 
 const fetchOrdinalUTXOs = async ({ pageParam }: { pageParam: PageParam }) => {
   const response = await fetch(
-    `https://api-3.xverse.app/v1/address/${pageParam.address}/ordinal-utxo?offset=${pageParam.offset}&limit=${pageParam.limit}`
+    `${XVERSE_API_URL}/address/${pageParam.address}/ordinal-utxo?offset=${pageParam.offset}&limit=${pageParam.limit}`
   );
   if (!response.ok) {
     throw new Error("Failed to fetch ordinal UTXOs");
   }
   const data = (await response.json()) as FetchResponse;
+
   return {
     results: data.results,
     total: data.total,

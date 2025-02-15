@@ -7,10 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useWalletOrdinals } from "@/hooks/useWalletOrdinals";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import * as bitcoin from "bitcoinjs-lib";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronRight } from "lucide-react";
 import {
     Form,
     FormControl,
@@ -19,7 +16,8 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
-import Link from "next/link";
+import { OrdinalItem } from "./_components/OrdinalItem";
+import { LoadingState } from "./_components/LoadingState";
 
 const formSchema = z.object({
     address: z.string().min(1, {
@@ -65,7 +63,6 @@ export default function Home() {
         hasNextPage,
         isFetchingNextPage
     } = useWalletOrdinals(walletAddress, { limit: 5, offset: 0 });
-    const router = useRouter();
 
     function onSubmit(data: FormValues) {
         setWalletAddress(data.address);
@@ -100,31 +97,13 @@ export default function Home() {
                     </form>
                 </Form>
                 <div className="mt-8 mb-2">Results</div>
-                {isLoading && (
-                    <div className="space-y-2">
-                        {Array.from({ length: 3 }).map((_, i) => (
-                            <div key={i} className="p-4 rounded-lg bg-black/20">
-                                <div className="space-y-2">
-                                    <Skeleton className="h-4 w-48" />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                {isLoading && <LoadingState />}
                 {ordinalsData && (
                     <div className="space-y-2">
                         {ordinalsData.pages.map((page) =>
                             page.results.map((utxo) =>
                                 utxo.inscriptions.map((inscription) => (
-                                    <Link
-                                        key={inscription.id}
-                                        href={`/${walletAddress}/ordinal/${inscription.id}`}
-                                    >
-                                        <div className="flex justify-between items-center py-2">
-                                            <p>Inscription {inscription.id.slice(0, 8)}</p>
-                                            <ChevronRight className="w-5 h-5" />
-                                        </div>
-                                    </Link>
+                                    <OrdinalItem key={inscription.id} inscription={inscription} walletAddress={walletAddress} />
                                 ))
                             )
                         )}

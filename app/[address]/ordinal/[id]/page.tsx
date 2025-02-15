@@ -1,56 +1,30 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useOrdinalDetails } from "@/hooks/useOrdinalDetails";
-import Image from "next/image";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { AttributeItem } from "@/app/[address]/ordinal/[id]/_components/AttributeItem";
 import { truncateText } from "@/lib/utils";
 import { OrdinalContent } from "./_components/OrdinalContent";
+import { LoadingState } from "./_components/LoadingState";
 
 export default function OrdinalPage() {
     const { id, address } = useParams<{ id: string; address: string }>();
-    const router = useRouter();
 
     const { data: ordinalDetails, isLoading, error } = useOrdinalDetails(
         address,
         id
     );
 
-    if (isLoading) {
-        return (
-            <div className="container mx-auto p-8">
-                <div className="max-w-2xl mx-auto space-y-4">
-                    <Skeleton className="h-8 w-64" />
-                    <Skeleton className="h-96 w-full" />
-                    <div className="space-y-2">
-                        {Array.from({ length: 14 }).map((_, i) => (
-                            <Skeleton key={i} className="h-6 w-full" />
-                        ))}
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    if (isLoading) return <LoadingState />;
 
-    if (error) {
+    if (error || !ordinalDetails) {
         return (
             <div className="flex justify-center items-center min-h-screen">
-                <p className="text-red-500">Error loading ordinal details</p>
-            </div>
-        );
-    }
-
-    if (!ordinalDetails) {
-        return (
-            <div className="flex justify-center items-center min-h-screen">
-                <p>No ordinal found</p>
+                <p className="text-red-500">Error loading ordinal</p>
             </div>
         );
     }
