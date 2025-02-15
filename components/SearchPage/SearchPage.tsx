@@ -28,12 +28,12 @@ const formSchema = z.object({
             // Legacy address
             bitcoin.address.fromBase58Check(val);
             return true;
-        } catch (err) {
+        } catch {
             try {
                 // SegWith and Taproot address
                 bitcoin.address.fromBech32(val);
                 return true;
-            } catch (err) {
+            } catch {
                 return false;
             }
         }
