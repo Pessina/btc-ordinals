@@ -10,131 +10,134 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import * as bitcoin from "bitcoinjs-lib";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ChevronRight } from "lucide-react";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+    FormDescription,
+} from "@/components/ui/form";
 
 const formSchema = z.object({
-  address: z.string().refine((val) => {
-    try {
-      // Legacy address
-      bitcoin.address.fromBase58Check(val);
-      return true;
-    } catch (err) {
-      try {
-        // SegWith and Taproot address
-        bitcoin.address.fromBech32(val);
-        return true;
-      } catch (err) {
-        return false;
-      }
-    }
-  }, "Invalid Bitcoin address format")
+    address: z.string().min(1, {
+        message: "Address is required.",
+    }).refine((val) => {
+        try {
+            // Legacy address
+            bitcoin.address.fromBase58Check(val);
+            return true;
+        } catch (err) {
+            try {
+                // SegWith and Taproot address
+                bitcoin.address.fromBech32(val);
+                return true;
+            } catch (err) {
+                return false;
+            }
+        }
+    }, "Invalid Bitcoin address format")
 });
-
 
 type FormValues = z.infer<typeof formSchema>;
 
 export default function Home() {
-  const [walletAddress, setWalletAddress] = useState<string>("");
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    mode: "onSubmit",
-    reValidateMode: "onChange"
-  });
+    const [walletAddress, setWalletAddress] = useState<string>("");
+    const form = useForm<FormValues>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            address: ""
+        }
+    });
 
-  const {
-    data: ordinalsData,
-    isLoading,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage
-  } = useWalletOrdinals(walletAddress, { limit: 5, offset: 0 });
-  const router = useRouter();
+    const {
+        data: ordinalsData,
+        isLoading,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage
+    } = useWalletOrdinals(walletAddress, { limit: 5, offset: 0 });
+    const router = useRouter();
 
-  const onSubmit = (data: FormValues) => {
-    setWalletAddress(data.address);
-  };
+    function onSubmit(data: FormValues) {
+        setWalletAddress(data.address);
+    }
 
-  return (
-    <div className="flex flex-col items-center justify-start min-h-screen bg-background text-foreground">
-      <div className="w-full max-w-2xl p-8">
-        <h1 className="text-2xl font-bold mb-6">Ordinal Inscription Lookup</h1>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mb-8">
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Owner Bitcoin Address</label>
-            <div className="flex gap-4">
-              <Input
-                placeholder="Enter wallet address"
-                {...register("address")}
-                className="flex-1 bg-black/20 border-0"
-              />
-              <Button
-                type="submit"
-                className="bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                Look up
-              </Button>
-            </div>
-          </div>
-          {errors.address && (
-            <p className="text-destructive text-sm">{errors.address.message}</p>
-          )}
-        </form>
-
-        <div className="text-sm font-medium mb-2">Results</div>
-
-        {isLoading && (
-          <div className="space-y-2">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="p-4 rounded-lg bg-black/20">
-                <div className="flex justify-between items-center">
-                  <div className="space-y-2 w-full">
-                    <Skeleton className="h-4 w-48" />
-                    <Skeleton className="h-4 w-32" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {ordinalsData && (
-          <div className="space-y-2">
-            {ordinalsData.pages.map((page) =>
-              page.results.map((utxo) =>
-                utxo.inscriptions.map((inscription) => (
-                  <div
-                    key={inscription.id}
-                    className="p-4 rounded-lg bg-black/20 hover:bg-black/30 transition-colors cursor-pointer"
-                    onClick={() => router.push(`/${walletAddress}/ordinal/${inscription.id}`)}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-mono text-sm">Inscription {inscription.id}</p>
-                        <p className="text-muted-foreground text-sm">{inscription.content_type}</p>
-                      </div>
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
-                        <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
+    return (
+        <div className="flex flex-col items-center justify-start min-h-screen bg-background text-foreground">
+            <div className="w-full max-w-2xl p-8">
+                <h1 className="text-xl md:text-2xl font-bold mb-6 text-center">Ordinal Inscription Lookup</h1>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)}>
+                        <FormField
+                            control={form.control}
+                            name="address"
+                            render={({ field }) => (
+                                <FormItem className="flex-1">
+                                    <FormLabel>Owner Bitcoin Address:</FormLabel>
+                                    <FormControl>
+                                        {/* TODO: The button should not be inside the FormField, check if it's possible to move it outside */}
+                                        <div className="flex flex-col md:flex-row gap-4">
+                                            <Input
+                                                placeholder="Enter Bitcoin address"
+                                                {...field}
+                                            />
+                                            <Button type="submit" className="bg-button-bg text-white">Look up</Button>
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </form>
+                </Form>
+                <div className="mt-8 mb-2">Results</div>
+                {isLoading && (
+                    <div className="space-y-2">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                            <div key={i} className="p-4 rounded-lg bg-black/20">
+                                <div className="space-y-2">
+                                    <Skeleton className="h-4 w-48" />
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                  </div>
-                ))
-              )
-            )}
-
-            {hasNextPage && (
-              <div className="flex justify-center mt-4">
-                <Button
-                  onClick={() => fetchNextPage()}
-                  disabled={isFetchingNextPage}
-                  variant="secondary"
-                  className="bg-black/20 hover:bg-black/30"
-                >
-                  {isFetchingNextPage ? "Loading more..." : "Load More"}
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+                )}
+                {ordinalsData && (
+                    <div className="space-y-2">
+                        {ordinalsData.pages.map((page) =>
+                            page.results.map((utxo) =>
+                                utxo.inscriptions.map((inscription) => (
+                                    <div
+                                        key={inscription.id}
+                                        className="py-2 cursor-pointer"
+                                        // TODO: Use Link component
+                                        onClick={() => router.push(`/${walletAddress}/ordinal/${inscription.id}`)}
+                                    >
+                                        <div className="flex justify-between items-center">
+                                            <p>Inscription {inscription.id.slice(0, 8)}</p>
+                                            <ChevronRight className="w-5 h-5" />
+                                        </div>
+                                    </div>
+                                ))
+                            )
+                        )}
+                        {hasNextPage && (
+                            <div className="flex justify-center my-4">
+                                <Button
+                                    onClick={() => fetchNextPage()}
+                                    disabled={isFetchingNextPage}
+                                    variant="secondary"
+                                >
+                                    {isFetchingNextPage ? "Loading more..." : "Load More"}
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
 }

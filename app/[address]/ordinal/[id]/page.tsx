@@ -105,7 +105,7 @@ export default function OrdinalPage() {
                 {renderContent()}
 
                 <div className="space-y-2">
-                    <p className="font-mono text-sm">ID: {ordinalDetails.id}</p>
+                    <p>ID: {ordinalDetails.id}</p>
                     <p>Address: {ordinalDetails.address}</p>
                     <p>Content Type: {ordinalDetails.content_type}</p>
                     <p>Content Length: {ordinalDetails.content_length}</p>
