@@ -7,6 +7,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { AttributeItem } from "@/app/[address]/ordinal/[id]/_components/AttributeItem";
+import { truncateText } from "@/lib/utils";
+import { OrdinalContent } from "./_components/OrdinalContent";
 
 export default function OrdinalPage() {
     const { id, address } = useParams<{ id: string; address: string }>();
@@ -49,51 +55,6 @@ export default function OrdinalPage() {
         );
     }
 
-    const renderContent = () => {
-        const contentUrl = `https://ordiscan.com/content/${ordinalDetails.id}`;
-
-        // Render safe image types directly.
-        // SVGs may include scripts, so we handle them (and other non-standard types) in an isolated iframe.
-        if (ordinalDetails.content_type.startsWith('image/') && !ordinalDetails.content_type.startsWith('image/svg')) {
-            if (ordinalDetails.content_type === 'image/gif') {
-                return (
-                    <img
-                        src={contentUrl}
-                        alt={`Ordinal #${ordinalDetails.number}`}
-                        className="w-full h-full object-contain rounded-lg"
-                        loading="lazy"
-                    />
-                );
-            }
-
-            return (
-                <Image
-                    src={contentUrl}
-                    alt={`Ordinal #${ordinalDetails.number}`}
-                    fill
-                    className="object-contain rounded-lg"
-                    unoptimized={false}
-                    loading="lazy"
-                />
-            );
-        }
-
-
-        // Render SVGs or other potentially unsafe content in an isolated iframe.
-        // The sandbox (allow-scripts) restricts dangerous operations while permitting scripts in a confined context.
-        return (
-            <iframe
-                src={contentUrl}
-                className="w-full h-full"
-                sandbox="allow-scripts"
-                title="Ordinal HTML content"
-                loading="lazy"
-                referrerPolicy="no-referrer"
-            />
-        );
-    };
-
-
     return (
         <div className="container mx-auto p-8">
             <div className="max-w-2xl mx-auto space-y-4">
@@ -105,27 +66,43 @@ export default function OrdinalPage() {
                 </div>
 
                 <div className="relative w-full h-96 mb-6">
-                    {renderContent()}
+                    <OrdinalContent ordinalDetails={ordinalDetails} />
                 </div>
 
-                <div className="space-y-2">
-                    <p>ID: {ordinalDetails.id}</p>
-                    <p>Address: {ordinalDetails.address}</p>
-                    <p>Content Type: {ordinalDetails.content_type}</p>
-                    <p>Content Length: {ordinalDetails.content_length}</p>
-                    <p>Genesis Fee: {ordinalDetails.genesis_fee}</p>
-                    <p>Genesis Block Height: {ordinalDetails.genesis_block_height}</p>
-                    <p>Genesis Transaction ID: {ordinalDetails.genesis_tx_id}</p>
-                    <p>Genesis Address: {ordinalDetails.genesis_address}</p>
-                    <p>Location: {ordinalDetails.location}</p>
-                    <p>Offset: {ordinalDetails.offset}</p>
-                    <p>Output: {ordinalDetails.output}</p>
-                    <p>Sat Ordinal: {ordinalDetails.sat_ordinal}</p>
-                    <p>Sat Rarity: {ordinalDetails.sat_rarity}</p>
-                    <p>Timestamp: {new Date(ordinalDetails.timestamp * 1000).toLocaleString()}</p>
-                    {ordinalDetails.collection_name && (
-                        <p>Collection: {ordinalDetails.collection_name}</p>
-                    )}
+                <div>
+                    <h2 className="text-xl">Inscription: {ordinalDetails.number}</h2 >
+
+                    <Separator className="my-4" />
+
+                    <div className="">
+                        <div className="space-y-2">
+                            <Label className="text-white/70">Inscription ID</Label>
+                            <p className="break-all">{ordinalDetails.id}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-white/70">Owner Address</Label>
+                            <p className="break-all">{address}</p>
+                        </div>
+                    </div>
+
+                    <h3 className="text-lg my-4">Attributes</h3>
+                    <div className="flex flex-col gap-4 text-sm">
+                        <AttributeItem label="Output Value" value={ordinalDetails.output} />
+                        <AttributeItem label="Content Type" value={ordinalDetails.content_type} />
+                        <AttributeItem label="Content Length" value={ordinalDetails.content_length.toString() + "bytes"} />
+                        <AttributeItem label="Location" value={truncateText(ordinalDetails.location)} />
+                        <AttributeItem label="Genesis Transaction ID" value={truncateText(ordinalDetails.genesis_tx_id)} />
+                        <AttributeItem label="Genesis Fee" value={ordinalDetails.genesis_fee.toString()} />
+                        <AttributeItem label="Genesis Block Height" value={ordinalDetails.genesis_block_height.toString()} />
+                        <AttributeItem label="Genesis Address" value={truncateText(ordinalDetails.genesis_address)} />
+                        <AttributeItem label="Offset" value={ordinalDetails.offset.toString()} />
+                        <AttributeItem label="Sat Ordinal" value={ordinalDetails.sat_ordinal.toString()} />
+                        <AttributeItem label="Sat Rarity" value={ordinalDetails.sat_rarity} />
+                        <AttributeItem label="Timestamp" value={new Date(ordinalDetails.timestamp * 1000).toLocaleString()} />
+                        {ordinalDetails.collection_name && (
+                            <AttributeItem label="Collection" value={ordinalDetails.collection_name} />
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

@@ -43,6 +43,12 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+/*
+TODO:
+- Use i18n for text
+- Persist Home page state when navigate back from Details page
+*/
+
 export default function Home() {
     const [walletAddress, setWalletAddress] = useState<string>("");
     const form = useForm<FormValues>({
