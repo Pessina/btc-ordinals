@@ -56,16 +56,16 @@ export default function OrdinalPage() {
     }
 
     return (
-        <div className="container mx-auto p-8">
-            <div className="max-w-2xl mx-auto space-y-4">
-                <div className="flex items-center justify-center mb-4 relative">
-                    <Link href="/" className="absolute left-0">
+        <div className="mx-auto md:p-8">
+            <div className="max-w-2xl mx-auto">
+                <div className="grid grid-cols-3 items-center py-4">
+                    <Link href="/" className="justify-self-start">
                         <ChevronLeft className="w-5 h-5" />
                     </Link>
-                    <h1 className="text-xl font-bold">Details</h1>
+                    <h1 className="text-xl font-bold justify-self-center">Details</h1>
                 </div>
 
-                <div className="relative w-full h-96 mb-6">
+                <div className="relative w-full aspect-square mb-6">
                     <OrdinalContent ordinalDetails={ordinalDetails} />
                 </div>
 

@@ -19,7 +19,7 @@ export const OrdinalContent: React.FC<{ ordinalDetails: OrdinalContentProps }> =
                 <img
                     src={contentUrl}
                     alt={`Ordinal #${ordinalDetails.number}`}
-                    className="w-full h-full object-contain rounded-lg"
+                    className="w-full h-full object-contain"
                     loading="lazy"
                 />
             );
@@ -30,7 +30,7 @@ export const OrdinalContent: React.FC<{ ordinalDetails: OrdinalContentProps }> =
                 src={contentUrl}
                 alt={`Ordinal #${ordinalDetails.number}`}
                 fill
-                className="object-contain rounded-lg"
+                className="object-contain"
                 unoptimized={false}
                 loading="lazy"
             />
