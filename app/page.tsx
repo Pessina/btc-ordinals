@@ -18,8 +18,8 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-    FormDescription,
 } from "@/components/ui/form";
+import Link from "next/link";
 
 const formSchema = z.object({
     address: z.string().min(1, {
@@ -110,17 +110,15 @@ export default function Home() {
                         {ordinalsData.pages.map((page) =>
                             page.results.map((utxo) =>
                                 utxo.inscriptions.map((inscription) => (
-                                    <div
+                                    <Link
                                         key={inscription.id}
-                                        className="py-2 cursor-pointer"
-                                        // TODO: Use Link component
-                                        onClick={() => router.push(`/${walletAddress}/ordinal/${inscription.id}`)}
+                                        href={`/${walletAddress}/ordinal/${inscription.id}`}
                                     >
-                                        <div className="flex justify-between items-center">
+                                        <div className="flex justify-between items-center py-2">
                                             <p>Inscription {inscription.id.slice(0, 8)}</p>
                                             <ChevronRight className="w-5 h-5" />
                                         </div>
-                                    </div>
+                                    </Link>
                                 ))
                             )
                         )}

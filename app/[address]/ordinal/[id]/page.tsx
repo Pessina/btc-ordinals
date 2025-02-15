@@ -5,14 +5,16 @@ import { useOrdinalDetails } from "@/hooks/useOrdinalDetails";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 
 export default function OrdinalPage() {
-    const { id, address } = useParams();
+    const { id, address } = useParams<{ id: string; address: string }>();
     const router = useRouter();
 
     const { data: ordinalDetails, isLoading, error } = useOrdinalDetails(
-        address as string,
-        id as string
+        address,
+        id
     );
 
     if (isLoading) {
@@ -48,61 +50,63 @@ export default function OrdinalPage() {
     }
 
     const renderContent = () => {
-        const contentUrl = `https://ord.xverse.app/content/${ordinalDetails.id}`;
+        const contentUrl = `https://ordiscan.com/content/${ordinalDetails.id}`;
 
-        if (ordinalDetails.content_type.startsWith('image/')) {
-            return (
-                <div className="relative w-full h-96 mb-6">
-                    <Image
+        // Render safe image types directly.
+        // SVGs may include scripts, so we handle them (and other non-standard types) in an isolated iframe.
+        if (ordinalDetails.content_type.startsWith('image/') && !ordinalDetails.content_type.startsWith('image/svg')) {
+            if (ordinalDetails.content_type === 'image/gif') {
+                return (
+                    <img
                         src={contentUrl}
                         alt={`Ordinal #${ordinalDetails.number}`}
-                        fill
-                        className="object-contain rounded-lg"
+                        className="w-full h-full object-contain rounded-lg"
+                        loading="lazy"
                     />
-                </div>
-            );
-        }
+                );
+            }
 
-        if (ordinalDetails.content_type === 'text/plain' || ordinalDetails.content_type === 'application/json') {
             return (
-                <iframe
+                <Image
                     src={contentUrl}
-                    className="w-full h-96 mb-6 bg-black/20 rounded-lg"
-                    title="Ordinal content"
+                    alt={`Ordinal #${ordinalDetails.number}`}
+                    fill
+                    className="object-contain rounded-lg"
+                    unoptimized={false}
+                    loading="lazy"
                 />
             );
         }
 
+
+        // Render SVGs or other potentially unsafe content in an isolated iframe.
+        // The sandbox (allow-scripts) restricts dangerous operations while permitting scripts in a confined context.
         return (
-            <p className="mb-6">
-                Content type {ordinalDetails.content_type} - View at:{' '}
-                <a
-                    href={contentUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400 hover:text-blue-300"
-                >
-                    {contentUrl}
-                </a>
-            </p>
+            <iframe
+                src={contentUrl}
+                className="w-full h-full"
+                sandbox="allow-scripts"
+                title="Ordinal HTML content"
+                loading="lazy"
+                referrerPolicy="no-referrer"
+            />
         );
     };
+
 
     return (
         <div className="container mx-auto p-8">
             <div className="max-w-2xl mx-auto space-y-4">
-                <div className="flex items-center gap-4 mb-4">
-                    <Button
-                        onClick={() => router.back()}
-                        variant="secondary"
-                        className="bg-black/20 hover:bg-black/30"
-                    >
-                        ← Back
-                    </Button>
-                    <h1 className="text-2xl font-bold">Ordinal #{ordinalDetails.number}</h1>
+                <div className="flex items-center justify-center mb-4 relative">
+                    <Link href="/" className="absolute left-0">
+                        <ChevronLeft className="w-5 h-5" />
+                    </Link>
+                    <h1 className="text-xl font-bold">Details</h1>
                 </div>
 
-                {renderContent()}
+                <div className="relative w-full h-96 mb-6">
+                    {renderContent()}
+                </div>
 
                 <div className="space-y-2">
                     <p>ID: {ordinalDetails.id}</p>

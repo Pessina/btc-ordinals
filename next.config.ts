@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         hostname: "ord.xverse.app",
         pathname: "/content/**",
       },
+      {
+        protocol: "https",
+        hostname: "ordiscan.com",
+        pathname: "/content/**",
+      },
     ],
   },
 };
