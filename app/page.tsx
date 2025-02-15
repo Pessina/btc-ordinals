@@ -14,7 +14,13 @@ type FormValues = {
 export default function Home() {
   const [walletAddress, setWalletAddress] = useState<string>("");
   const { register, handleSubmit } = useForm<FormValues>();
-  const { data: ordinalsData, isLoading } = useWalletOrdinals(walletAddress);
+  const {
+    data: ordinalsData,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useWalletOrdinals(walletAddress, { limit: 7, offset: 0 });
   const router = useRouter();
 
   const onSubmit = (data: FormValues) => {
@@ -39,22 +45,34 @@ export default function Home() {
 
       {ordinalsData && (
         <div className="w-full max-w-2xl space-y-4">
-          {ordinalsData.results.map((utxo) =>
-            utxo.inscriptions.map((inscription) => (
-              <div
-                key={inscription.id}
-                className="p-4 border rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
-                onClick={() => router.push(`/${walletAddress}/ordinal/${inscription.id}`)}
-              >
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="font-mono text-sm">ID: {inscription.id}</p>
-                    <p>Number: {inscription.number}</p>
-                    <p>Type: {inscription.content_type}</p>
+          {ordinalsData.pages.map((page) =>
+            page.results.map((utxo) =>
+              utxo.inscriptions.map((inscription) => (
+                <div
+                  key={inscription.id}
+                  className="p-4 border rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                  onClick={() => router.push(`/${walletAddress}/ordinal/${inscription.id}`)}
+                >
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-mono text-sm">ID: {inscription.id}</p>
+                      <p>Content Type: {inscription.content_type}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              ))
+            )
+          )}
+
+          {hasNextPage && (
+            <div className="flex justify-center mt-4">
+              <Button
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+              >
+                {isFetchingNextPage ? "Loading more..." : "Load More"}
+              </Button>
+            </div>
           )}
         </div>
       )}

@@ -1,88 +1,70 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 interface OrdinalUTXO {
   txid: string;
   vout: number;
-  status: {
-    confirmed: boolean;
-    block_height: number;
-    block_hash: string;
-    block_time: number;
-  };
+  block_height: number;
   value: number;
+  sats: Array<{
+    number: string;
+    rarity_ranking: string;
+    offset: number;
+  }>;
   inscriptions: Array<{
     id: string;
-    number: number;
+    offset: number;
     content_type: string;
   }>;
 }
 
-interface InscriptionDetails {
-  id: string;
-  number: number;
+interface PageParam {
   address: string;
-  content_type: string;
-  content_length: number;
-  genesis_fee: number;
-  genesis_height: number;
-  genesis_transaction: string;
-  location: string;
-  offset: string;
-  output: string;
-  timestamp: string;
+  offset: number;
+  limit: number;
 }
 
-const fetchOrdinalUTXOs = async (
-  address: string,
-  offset?: number,
-  limit: number = 20
-) => {
+interface FetchResponse {
+  limit: number;
+  offset: number;
+  total: number;
+  results: OrdinalUTXO[];
+}
+
+const fetchOrdinalUTXOs = async ({ pageParam }: { pageParam: PageParam }) => {
   const response = await fetch(
-    `https://api-3.xverse.app/v1/address/${address}/ordinal-utxo?offset=${
-      offset || 0
-    }&limit=${limit}`
+    `https://api-3.xverse.app/v1/address/${pageParam.address}/ordinal-utxo?offset=${pageParam.offset}&limit=${pageParam.limit}`
   );
   if (!response.ok) {
     throw new Error("Failed to fetch ordinal UTXOs");
   }
-  return response.json() as Promise<{ results: OrdinalUTXO[]; total: number }>;
-};
-
-const fetchInscriptionDetails = async (
-  address: string,
-  inscriptionId: string
-) => {
-  const response = await fetch(
-    `https://api-3.xverse.app/v1/address/${address}/ordinals/inscriptions/${inscriptionId}`
-  );
-  if (!response.ok) {
-    throw new Error("Failed to fetch inscription details");
-  }
-  return response.json() as Promise<InscriptionDetails>;
+  const data = (await response.json()) as FetchResponse;
+  return {
+    results: data.results,
+    total: data.total,
+    nextOffset: pageParam.offset + pageParam.limit,
+    hasMore: pageParam.offset + pageParam.limit < data.total,
+  };
 };
 
 export const useWalletOrdinals = (
   address?: string,
-  offset?: number,
-  limit?: number
+  options: { limit: number; offset: number } = { limit: 5, offset: 0 }
 ) => {
-  return useQuery({
-    queryKey: ["ordinals", address, offset, limit],
-    queryFn: () => (address ? fetchOrdinalUTXOs(address, offset, limit) : null),
+  return useInfiniteQuery({
+    queryKey: ["ordinals", address],
+    queryFn: ({ pageParam }) =>
+      fetchOrdinalUTXOs({
+        pageParam: {
+          address: address ?? "",
+          offset: pageParam?.offset ?? options.offset,
+          limit: options.limit,
+        },
+      }),
+    initialPageParam: {
+      offset: options.offset,
+    },
+    getNextPageParam: (lastPage) =>
+      lastPage.hasMore ? { offset: lastPage.nextOffset } : undefined,
     enabled: !!address,
-  });
-};
-
-export const useInscriptionDetails = (
-  address?: string,
-  inscriptionId?: string
-) => {
-  return useQuery({
-    queryKey: ["inscription", address, inscriptionId],
-    queryFn: () =>
-      address && inscriptionId
-        ? fetchInscriptionDetails(address, inscriptionId)
-        : null,
-    enabled: !!address && !!inscriptionId,
   });
 };
