@@ -1,7 +1,7 @@
 import { XVERSE_API_URL } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
 
-interface InscriptionDetails {
+export interface InscriptionDetails {
   id: string;
   number: number;
   address: string;
@@ -18,12 +18,12 @@ interface InscriptionDetails {
   sat_rarity: string;
   sat_coinbase_height: number;
   mime_type: string;
-  content_type: string;
-  content_length: number;
+  content_type?: string;
+  content_length?: number;
   tx_id: string;
   timestamp: number;
   value: number;
-  category: string | null;
+  category?: string | null;
   collection_id?: string;
   collection_name?: string;
   inscription_floor_price?: number;

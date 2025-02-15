@@ -45,7 +45,6 @@ type FormValues = z.infer<typeof formSchema>;
 /*
 TODO:
 - Use i18n for text
-- Persist Home page state when navigate back from Details page
 */
 
 export default function SearchPage() {

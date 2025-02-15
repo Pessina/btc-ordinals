@@ -62,8 +62,8 @@ export default function OrdinalPage() {
                     <h3 className="text-lg my-4">Attributes</h3>
                     <div className="flex flex-col gap-4 text-sm">
                         <AttributeItem label="Output Value" value={ordinalDetails.output} />
-                        <AttributeItem label="Content Type" value={ordinalDetails.content_type} />
-                        <AttributeItem label="Content Length" value={ordinalDetails.content_length.toString() + "bytes"} />
+                        <AttributeItem label="Content Type" value={ordinalDetails.content_type || "N/A"} />
+                        <AttributeItem label="Content Length" value={ordinalDetails.content_length?.toString() + "bytes"} />
                         <AttributeItem label="Location" value={truncateText(ordinalDetails.location)} />
                         <AttributeItem label="Genesis Transaction ID" value={truncateText(ordinalDetails.genesis_tx_id)} />
                         <AttributeItem label="Genesis Fee" value={ordinalDetails.genesis_fee.toString()} />

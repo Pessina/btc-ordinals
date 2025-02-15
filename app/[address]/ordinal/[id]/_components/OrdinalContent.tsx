@@ -1,20 +1,13 @@
 import { ORDISCAN_API_URL } from "@/lib/constants";
 import Image from "next/image";
+import { InscriptionDetails } from "@/hooks/useOrdinalDetails";
 
-type OrdinalContentProps = {
-    id: string;
-    number: number;
-    content_type: string;
-    content_length: number;
-    location: string;
-}
-
-export const OrdinalContent: React.FC<{ ordinalDetails: OrdinalContentProps }> = ({ ordinalDetails }) => {
+export const OrdinalContent: React.FC<{ ordinalDetails: InscriptionDetails }> = ({ ordinalDetails }) => {
     const contentUrl = `${ORDISCAN_API_URL}/content/${ordinalDetails.id}`;
 
     // Render safe image types directly.
     // SVGs may include scripts, so we handle them (and other non-standard types) in an isolated iframe.
-    if (ordinalDetails.content_type.startsWith('image/') && !ordinalDetails.content_type.startsWith('image/svg')) {
+    if (ordinalDetails.content_type?.startsWith('image/') && !ordinalDetails.content_type?.startsWith('image/svg')) {
         if (ordinalDetails.content_type === 'image/gif') {
             return (
                 <img
